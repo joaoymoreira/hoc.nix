@@ -1,0 +1,95 @@
+# README.org -*- buffer-read-only: t; org-roam-mode: nil; -*-
+
+#+title: hoc.nix: Nix packages for Higher Order Company's software
+#+author: João Moreia
+
+#+language: en
+
+#+options: toc:nil
+#+options: author:t email:t
+
+* Description
+
+Nix packages for Higher Order Company's software as a nix flake.
+
+* Installation and usage
+
+Available packages are bend/bend2 and kind2.
+
+** nix shell
+
+#+begin_src
+nix shell github:joaoymoreira/hoc.nix#bend
+bend --help
+#+end_src
+
+#+begin_src
+nix shell github:joaoymoreira/hoc.nix#kind2
+#+end_src
+
+** NixOS
+
+1. Set a flake input for hoc.nix on your =flake.nix=:
+   #+begin_src
+{
+  inputs = {
+    hoc.nix = {
+      type = "github";
+      owner = "joaymoreira";
+      repo = "hoc.nix";
+    };
+  };
+}
+   #+end_src
+
+2. Pass it to outputs:
+   #+begin_src
+outputs = (inputs@{
+  self
+  , nixpkgs
+  , hoc.nix
+  , ...
+}:
+   #+end_src
+
+3. Add packages to the packages set
+   #+begin_src
+{
+  environment.systemPackages = (with pkgs; [
+    inputs.nix-init.packages."x86_64-linux".bend
+    inputs.nix-init.packages."x86_64-linux".kind2
+  ]);
+}
+   #+end_src
+
+4. nixos-rebuild
+   #+begin_src
+sudo nixos-rebuild switch --print-build-logs --flake '/path/to/nixos#configuration'
+   #+end_src
+
+5. Open new shell and use the binary
+   #+begin_src
+bend --help
+   #+end_src
+
+* Donate
+
+- XMR: 46AimJRHbemHLFNPaUSpH6MrWHmSE5awiAUm13ULwq65BUEmoBNwcGhKn45vqmxCjUaTtemLbmX82hjQNJ83nQD3PKSGaRW
+- BTC: bc1q4gmxnxkknwt82rg6t30v2r82uchc8u0qqkd4dk
+- ETH: 0xdE82406b8F0BDd8Ae488197094D80132b387E805
+- SOL: Ep2SY6G4kNqPX9xC3jAugbnRv751LajT6hdwykn8BzPj
+- Lightning Network: joaomoreira@cake.cash
+
+* License
+
+João Moreira licenses *hoc.nix* under the terms of the [[file:LICENSE][MIT License]].
+
+#+begin_src
+Copyright 2027 João Moreira
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#+end_src
