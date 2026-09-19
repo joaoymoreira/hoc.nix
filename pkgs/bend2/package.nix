@@ -2,6 +2,7 @@
   lib,
   stdenv,
   fetchFromGitHub,
+  typst,
   makeWrapper,
   bun,
   clang,
@@ -10,16 +11,17 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "bend";
-  version = "2.0.4-unstable-2026-09-17";
+  version = "2.0.10";
 
   src = fetchFromGitHub {
     owner = "bendlang";
     repo = "bend";
-    rev = "8008146ab90abb98b496fa2a6ffe555da7fb0dd5";
-    hash = "sha256-E+4jA5jKzbyEqHblShBbIeqyV7BQEvgBzVdM3/vVEPc=";
+    rev = "2b9fc8d6e30d21ef0cd6bd122e8cf370cc8f5a8a";
+    hash = "sha256-fiNTCnJwTXexEiYXe4L2gqaTxUoU6h4mVACgIZ+Lmeg=";
   };
 
   nativeBuildInputs = [
+    typst
     makeWrapper
   ];
 
@@ -31,12 +33,21 @@ stdenv.mkDerivation (finalAttrs: {
     cudaPackages.cuda_nvcc
   ];
 
+  buildPhase = ''
+    runHook preBuild
+
+    typst compile --root=bend2/docs/ bend2/docs/BendRT/main.typ bend2/docs/BendRT/BendRT.pdf
+    typst compile --root=bend2/docs/ bend2/docs/BendTT/main.typ bend2/docs/BendTT/BendTT.pdf
+
+    runHook postBuild
+  '';
+
   installPhase = ''
     runHook preInstall
 
     mkdir -p $out/{bin,share/bend2,share/doc}
     cp -r -t $out/share/bend2 bend2/base.bend bend2/bend.ts bend2/comp.ts bend2/main.ts bend2/effs
-    cp -r -t $out/share/doc LICENSE
+    cp -r -t $out/share/doc LICENSE bend2/docs/BendRT/BendRT.pdf bend2/docs/BendTT/BendTT.pdf
     cp -r -t $out/share guide
 
     makeWrapper ${lib.getExe bun} $out/bin/bend \
