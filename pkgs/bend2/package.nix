@@ -45,9 +45,10 @@ stdenv.mkDerivation (finalAttrs: {
   installPhase = ''
     runHook preInstall
 
-    mkdir -p $out/{bin,share/bend2,share/doc}
+    mkdir -p $out/{bin,share/bend2,share/doc,share/doc/media}
     cp -r -t $out/share/bend2 bend2/base.bend bend2/bend.ts bend2/comp.ts bend2/main.ts bend2/effs
-    cp -r -t $out/share/doc LICENSE bend2/docs/BendRT/BendRT.pdf bend2/docs/BendTT/BendTT.pdf
+    cp -r -t $out/share/doc LICENSE CHANGELOG.md README.md bend2/docs/BendRT/BendRT.pdf bend2/docs/BendTT/BendTT.pdf
+    cp -r -t $out/share/doc/media media/*.gif
     cp -r -t $out/share guide
 
     makeWrapper ${lib.getExe bun} $out/bin/bend \
