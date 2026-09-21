@@ -63,6 +63,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ joaomoreira ];
     mainProgram = "bend";
-    platforms = lib.platforms.all;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 })
