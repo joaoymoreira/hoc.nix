@@ -28,8 +28,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   buildInputs = [
     bun
     clang
-    cudaPackages.cuda_cudart
-    cudaPackages.cccl
+    cudaPackages.cudatoolkit
     cudaPackages.cuda_nvcc
   ];
 
