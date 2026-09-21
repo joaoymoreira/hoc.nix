@@ -50,10 +50,12 @@
           config.allowUnfree = true;
         };
 
-        # packages.hvm2 = pkgs.callPackage ./pkgs/hvm2/package.nix { };
-        packages.kind2 = pkgs.callPackage ./pkgs/kind2/package.nix { };
-        packages.bend = pkgs.callPackage ./pkgs/bend2/package.nix { };
-        packages.bend2 = pkgs.callPackage ./pkgs/bend2/package.nix { };
+        packages = {
+          # hvm2 = pkgs.callPackage ./pkgs/hvm2/package.nix { };
+          kind2 = pkgs.callPackage ./pkgs/kind2/package.nix { };
+          bend = pkgs.callPackage ./pkgs/bend2/package.nix { };
+          bend2 = pkgs.callPackage ./pkgs/bend2/package.nix { };
+        };
       };
     })
   );
