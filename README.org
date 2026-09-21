@@ -96,7 +96,7 @@ bend --help
 João Moreira licenses *hoc.nix* under the terms of the [[file:LICENSE][MIT License]].
 
 #+begin_src
-Copyright 2027 João Moreira
+Copyright 2026 João Moreira
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the “Software”), to deal in
