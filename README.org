@@ -12,7 +12,7 @@ Nix packages for Higher Order Company's software as a nix flake.
 
 * Installation and usage
 
-Available packages are ~bend2~ and ~kind2~ (more soon™).
+Available packages are ~bend2~, ~bend2-cuda~ and ~kind2~ (more soon™).
 
 ** nix shell
 
@@ -22,20 +22,26 @@ bend --help
 #+end_src
 
 #+begin_src
+nix shell github:joaoymoreira/hoc.nix#bend2-cuda
+bend --help
+#+end_src
+
+#+begin_src
 nix shell github:joaoymoreira/hoc.nix#kind2
+kind
 #+end_src
 
 ** nix develop
 
-Currently available devshell is ~bend2~ and ~bend2-nocuda~.
+Currently available devshell is ~bend2~ and ~bend2-cuda~.
 
 #+begin_src
 nix develop github:joaoymoreira/hoc.nix#bend2
 #+end_src
 
-If you are on Linux and want to disable Cuda (disabled by default on MacOS):
+If you are on Linux and want to enable Cuda:
 #+begin_src
-nix develop github:joaoymoreira/hoc.nix#bend2-nocuda
+nix develop github:joaoymoreira/hoc.nix#bend2-cuda
 #+end_src
 
 ** NixOS
@@ -66,8 +72,14 @@ outputs = (inputs@{
 3. Add packages to the packages set
    #+begin_src
 {
+ pkgs,
+ inputs,
+ ...
+}:
+
+{
   environment.systemPackages = (with pkgs; [
-    inputs."hoc.nix".packages."x86_64-linux".bend
+    inputs."hoc.nix".packages."x86_64-linux".bend2
     inputs."hoc.nix".packages."x86_64-linux".kind2
   ]);
 }

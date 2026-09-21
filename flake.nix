@@ -53,8 +53,8 @@
         packages = {
           # hvm2 = pkgs.callPackage ./pkgs/hvm2/package.nix { };
           kind2 = pkgs.callPackage ./pkgs/kind2/package.nix { };
-          bend = pkgs.callPackage ./pkgs/bend2/package.nix { };
           bend2 = pkgs.callPackage ./pkgs/bend2/package.nix { };
+          bend2-cuda = pkgs.callPackage ./pkgs/bend2/package.nix {enableCuda = true;};
         };
 
         # Devshell factory. It lives in legacyPackages (rather than a plain
@@ -93,9 +93,9 @@
         devShells = {
           bend2 = self'.legacyPackages.mkBend2Shell { };
 
-          bend2-nocuda = self'.legacyPackages.mkBend2Shell {
-            name = "bend2-nocuda";
-            bend2 = self'.packages.bend2.override { enableCuda = false; };
+          bend2-cuda = self'.legacyPackages.mkBend2Shell {
+            name = "bend2-cuda";
+            bend2 = self'.packages.bend2.override { enableCuda = true; };
           };
 
           default = self'.devShells.bend2;

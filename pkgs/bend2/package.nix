@@ -13,7 +13,7 @@
   enableClang ? true,
   enableAlsa ? stdenvNoCC.hostPlatform.isLinux,
   enableX ? stdenvNoCC.hostPlatform.isLinux,
-  enableCuda ? stdenvNoCC.hostPlatform.isLinux,
+  enableCuda ? false,
   disableTelemetry ? true,
   libcudaPath ? "/run/opengl-driver/lib"
 }:
