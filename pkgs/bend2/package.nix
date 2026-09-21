@@ -2,9 +2,9 @@
   lib,
   stdenvNoCC,
   fetchFromGitHub,
-  typst,
   makeWrapper,
   bun,
+  typst,
   clang,
   cudaPackages
 }:
