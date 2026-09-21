@@ -11,13 +11,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "bend";
-  version = "2.0.22";
+  version = "2.0.24";
 
   src = fetchFromGitHub {
     owner = "bendlang";
     repo = "bend";
-    rev = "8745e421c33e7e6b5e8815a85d974222c2541fc4";
-    hash = "sha256-i9GM+F+0g8qxjSh81dstvhI/yMvVydpLjRgUNwlgHd8=";
+    rev = "2a7f7125cf218b6ff089c366fa8ce69e100d4a17";
+    hash = "sha256-91NqfAtff1l0uf5+wXrjdi3VpdcfrNH80Cjo7b2Wf7Y=";
   };
 
   nativeBuildInputs = [
