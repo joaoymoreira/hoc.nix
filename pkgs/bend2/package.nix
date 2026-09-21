@@ -6,10 +6,57 @@
   bun,
   typst,
   clang,
-  cudaPackages
+  cudaPackages,
+  alsa-lib,
+  libx11,
+  xorgproto,
+  enableClang ? true,
+  enableAlsa ? stdenvNoCC.hostPlatform.isLinux,
+  enableX ? stdenvNoCC.hostPlatform.isLinux,
+  enableCuda ? stdenvNoCC.hostPlatform.isLinux,
+  libcudaPath ? "/run/opengl-driver/lib"
 }:
 
-stdenvNoCC.mkDerivation (finalAttrs: {
+let
+  binPackages =
+    lib.optionals enableClang [ clang ]
+    ++ lib.optionals enableCuda [ cudaPackages.cuda_nvcc ];
+
+  includePackages =
+    lib.optionals enableX [ libx11.dev xorgproto ]
+    ++ lib.optionals enableAlsa [ alsa-lib.dev ]
+    ++ lib.optionals enableCuda [ cudaPackages.cudatoolkit ];
+
+  libraryPackages =
+    lib.optionals enableX [ libx11 ]
+    ++ lib.optionals enableAlsa [ alsa-lib ]
+    ++ lib.optionals enableCuda [ cudaPackages.cudatoolkit ];
+
+  binPaths = lib.makeBinPath binPackages;
+  includePaths = lib.makeSearchPath "include" includePackages;
+  libraryPaths = lib.makeLibraryPath libraryPackages;
+
+  # `-lcuda` (the CUDA driver library) is not part of the redistributable
+  # toolkit: the real library is installed by the NVIDIA driver, outside the Nix
+  # store. The toolkit ships only a link-time stub (SONAME libcuda.so.1) in
+  # lib/stubs; the real driver satisfies it at runtime.
+  stubPaths = lib.optionals enableCuda [
+    "${cudaPackages.cudatoolkit}/lib/stubs"
+  ];
+
+  # Link-time search path: real libs + the libcuda stub.
+  linkPaths = lib.concatStringsSep ":"
+    (lib.filter (p: p != "") ([ libraryPaths ] ++ stubPaths));
+
+  # Run-time search path: real libs + the NVIDIA driver location on NixOS.
+  runtimePaths = lib.concatStringsSep ":"
+    (lib.filter (p: p != "")
+      ([ libraryPaths ]
+       ++ lib.optionals (enableCuda && stdenvNoCC.hostPlatform.isLinux) [
+         libcudaPath
+       ]));
+
+in stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "bend";
   version = "2.0.24";
 
@@ -27,7 +74,14 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   buildInputs = [
     bun
+  ] ++ lib.optionals enableClang [
     clang
+  ] ++ lib.optionals enableX [
+    libx11.dev
+    xorgproto
+  ] ++ lib.optionals enableAlsa [
+    alsa-lib.dev
+  ] ++ lib.optionals enableCuda [
     cudaPackages.cudatoolkit
     cudaPackages.cuda_nvcc
   ];
@@ -52,7 +106,12 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
     makeWrapper ${lib.getExe bun} $out/bin/bend \
       --add-flags "$out/share/bend2/main.ts" \
-      --prefix PATH : ${lib.makeBinPath [ bun clang cudaPackages.cuda_nvcc ]}
+      ${lib.optionalString (binPaths != "") "--prefix PATH : ${binPaths}"} \
+      ${lib.optionalString (includePaths != "") "--prefix CPATH : ${includePaths}"} \
+      ${lib.optionalString (linkPaths != "") "--prefix LIBRARY_PATH : ${linkPaths}"} \
+      ${lib.optionalString (runtimePaths != "") "--prefix LD_LIBRARY_PATH : ${runtimePaths}"} \
+      ${lib.optionalString enableCuda ''--set-default CUDA_HOME "${cudaPackages.cudatoolkit}"''} \
+      ${lib.optionalString disableTelemetry "--set-default BEND_NO_TELEMETRY 1"}
 
     runHook postInstall
   '';
