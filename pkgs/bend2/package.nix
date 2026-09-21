@@ -57,6 +57,12 @@ let
          libcudaPath
        ]));
 
+  # Linker flags for Bend-generated C: mirrors what `bend` itself passes to
+  # clang, so a manual `clang main.c -o main` in the devshell links too.
+  linkFlags =
+    lib.optionals enableX [ "-lX11" ]
+    ++ lib.optionals enableAlsa [ "-lasound" ]
+    ++ lib.optionals enableCuda [ "-lcuda" "-lnvrtc" ];
 in stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "bend";
   version = "2.0.24";
@@ -116,6 +122,30 @@ in stdenvNoCC.mkDerivation (finalAttrs: {
 
     runHook postInstall
   '';
+
+  # Exposed for the devShell in flake.nix, so the shell and the wrapped
+  # `bend` binary always agree on dependencies and environment.
+  passthru = {
+    inherit binPaths includePaths libraryPaths linkFlags;
+
+    # The environment `makeWrapper` sets up for the `bend` binary.
+    runtimeEnv =
+      (lib.optionalAttrs (includePaths != "") {
+        CPATH = includePaths;
+      })
+      // (lib.optionalAttrs (linkPaths != "") {
+        LIBRARY_PATH = linkPaths;
+      })
+      // (lib.optionalAttrs (runtimePaths != "") {
+        LD_LIBRARY_PATH = runtimePaths;
+      })
+      // (lib.optionalAttrs enableCuda {
+        CUDA_HOME = "${cudaPackages.cudatoolkit}";
+      })
+      // (lib.optionalAttrs disableTelemetry {
+        BEND_NO_TELEMETRY = "1";
+      });
+  };
 
   meta = {
     description = "Bend 2: a fast language that blocks AI mistakes via proof.";

@@ -56,6 +56,44 @@
           bend = pkgs.callPackage ./pkgs/bend2/package.nix { };
           bend2 = pkgs.callPackage ./pkgs/bend2/package.nix { };
         };
+
+        # nix develop
+        devShells = (
+          let
+            # The same `bend` package that `packages.bend2` builds, so the
+            # shell always matches it. To trim the shell, override the
+            # feature flags here, e.g.:
+            #   bend = self'.packages.bend2.override { enableCuda = false; };
+            bend2 = self'.packages.bend2;
+          in
+            {
+              bend2 = pkgs.mkShell {
+                name = "bend2";
+                meta.description = "Bend 2 development environment";
+
+                # The wrapped `bend` binary itself, on PATH.
+                packages = [ bend2 ];
+
+                # Pulls in every buildInput / nativeBuildInput of the bend
+                # package: bun, typst, clang, makeWrapper, libx11.dev,
+                # xorgproto, alsa-lib.dev, cudatoolkit, cuda_nvcc, ...
+                inputsFrom = [ bend2 ];
+
+                # The same environment the `bend` wrapper script sets up:
+                # CPATH, LIBRARY_PATH, LD_LIBRARY_PATH, CUDA_HOME and
+                # BEND_NO_TELEMETRY (mirrors the makeWrapper flags).
+                env = bend2.passthru.runtimeEnv;
+
+                # -l flags from the package: -lX11/-lasound follow enableX /
+                # enableAlsa (Linux by default), -lcuda/-lnvrtc follow enableCuda.
+                shellHook = ''
+                  export NIX_LDFLAGS="$NIX_LDFLAGS ${lib.concatStringsSep " " bend2.passthru.linkFlags}"
+                '';
+              };
+
+              default = self'.devShells.bend;
+            }
+        );
       };
     })
   );
