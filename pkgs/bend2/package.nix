@@ -1,6 +1,6 @@
 {
   lib,
-  stdenv,
+  stdenvNoCC,
   fetchFromGitHub,
   typst,
   makeWrapper,
@@ -9,7 +9,7 @@
   cudaPackages
 }:
 
-stdenv.mkDerivation (finalAttrs: {
+stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "bend";
   version = "2.0.24";
 
