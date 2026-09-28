@@ -65,13 +65,13 @@ let
     ++ lib.optionals enableCuda [ "-lcuda" "-lnvrtc" ];
 in stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "bend";
-  version = "2.0.24";
+  version = "2.0.32";
 
   src = fetchFromGitHub {
     owner = "bendlang";
     repo = "bend";
-    rev = "2a7f7125cf218b6ff089c366fa8ce69e100d4a17";
-    hash = "sha256-91NqfAtff1l0uf5+wXrjdi3VpdcfrNH80Cjo7b2Wf7Y=";
+    rev = "573002f01ec6c52416d44489543f69a9625facf8";
+    hash = "sha256-L3IQepAJuQaQiLZnluWgWIxdBZTMaJYipA9nis3i2BY=";
   };
 
   nativeBuildInputs = [
